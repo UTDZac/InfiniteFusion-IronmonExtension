@@ -1,10 +1,11 @@
 local function InfiniteFusion()
 	local self = {}
+
 	-- Define descriptive attributes of the custom extension that are displayed on the Tracker settings
 	self.name = "Infinite Fusion Calculator"
 	self.author = "UTDZac"
 	self.description = "Fuse two Pokémon together using the Infinite Fusion Calculator. Original tool created by Aegide."
-	self.version = "1.0"
+	self.version = "1.1"
 	self.url = "https://github.com/UTDZac/InfiniteFusion-IronmonExtension"
 
 	local ExtConstants = {
@@ -17,8 +18,8 @@ local function InfiniteFusion()
 		Formats = {
 			fusionName = "%s / %s  (%s.%s)", -- e.g Shuckle/Pikachu (213.25)
 			fusionUrl = "https://raw.githubusercontent.com/Aegide/custom-fusion-sprites/main/CustomBattlers/%s.%s.png",
-			curlCommand1 = 'curl -s -o "%s" -w "%%{http_code}," "%s"', -- Fetches a fusion image and returns http status code
-			curlCommand2 = 'curl -s -o "%s" -w "%%{http_code}" "%s"', -- Fetches a fusion image and returns http status code
+			curlCommand1 = 'curl --ssl-no-revoke -s -o "%s" -w "%%{http_code}," "%s"', -- Fetches a fusion image and returns http status code
+			curlCommand2 = 'curl --ssl-no-revoke -s -o "%s" -w "%%{http_code}" "%s"', -- Fetches a fusion image and returns http status code
 		},
 		Screens = {
 			MainFusion = 1,
@@ -529,15 +530,20 @@ local function InfiniteFusion()
 		end
 	end
 
-	-- Depending on the Window Size (key)
-	local imageLocation = {
-		[1] = { x = 20, y = 10, },
-		[2] = { x = 100, y = 12, },
-		[3] = { x = 220, y = 50, },
-		[4] = { x = 350, y = 100, },
-		[5] = { x = 350, y = 100, },
-		[10] = { x = 350, y = 100, },
-	}
+	-- Returns a table {x,y,w,h} defining image dimensions based on screen size
+	local function getImageDimensions()
+		local bottomAreaPadding = TeamViewArea.isDisplayed() and Constants.SCREEN.BOTTOM_AREA or Constants.SCREEN.DOWN_GAP
+		local widthRatio = client.screenwidth() / (Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP)
+		local heightRatio = client.screenheight() / (Constants.SCREEN.HEIGHT + bottomAreaPadding)
+		local yOffset = heightRatio > 5 and 160 or 0 -- shift downward if fullscreen (ratio > 5)
+		return {
+			x = math.floor(70 * widthRatio),
+			y = math.floor(10 * widthRatio) + yOffset,
+			w = math.floor(120 * widthRatio), -- Image is always a square
+			h = math.floor(120 * widthRatio),
+		}
+	end
+
 	local hamburgerIcon = {
 		{0,0,0,0,0,0,0,0,0,0,0},
 		{0,1,1,1,1,1,1,1,1,1,0},
@@ -711,9 +717,9 @@ local function InfiniteFusion()
 				-- Required to refresh the image canvas
 				gui.drawPixel(1, 1, ExtConstants.Colors.background, ExtConstants.imageCanvas)
 
-				local loc = imageLocation[client.getwindowsize() or 2]
 				if fusionToDraw.canDisplay and FileManager.fileExists(fusionToDraw.filepath) then
-					gui.drawImage(fusionToDraw.filepath, loc.x, loc.y, nil, nil, false, ExtConstants.imageCanvas)
+					local imgDim = getImageDimensions()
+					gui.drawImage(fusionToDraw.filepath, imgDim.x, imgDim.y, imgDim.w, imgDim.h, false, ExtConstants.imageCanvas)
 				elseif fusionToDraw.isFetched then
 					local missingno = FileManager.buildImagePath(FileManager.Folders.Icons, "missingno", ".png")
 					gui.drawImage(missingno, 112, 45)
