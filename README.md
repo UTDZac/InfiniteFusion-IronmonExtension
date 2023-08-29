@@ -6,8 +6,8 @@ Fuse two Pokémon together using the Infinite Fusion Calculator. Original tool c
 
 ## Install
 1) Download the [latest release](https://github.com/UTDZac/InfiniteFusion-IronmonExtension/releases/latest) of this extension from the GitHub's Releases page
-2) Extract the contents of the `.zip` file into a new folder
-3) Copy all files & folders from the extracted folder into the "**extensions**" folder found inside your Tracker folder
+2) If you downloaded a `.zip` file, first extract the contents of the `.zip` file into a new folder
+3) Put the extension file(s) in the existing "**extensions**" folder found inside your Tracker folder
    - The file(s) should appear as: `[YOUR_TRACKER_FOLDER]/extensions/InfiniteFusion.lua`
 
 ## Enable the Extension
