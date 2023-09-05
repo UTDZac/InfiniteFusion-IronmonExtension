@@ -2,9 +2,17 @@
 Fuse two Pokémon together using the Infinite Fusion Calculator. Original tool created by Aegide.
 
 ## Requirements
+- Offline image resources for the fusions (about 350 MB), see [here](#install-the-fusion-image-resource-files) for details
+   - Currently the online Infinite Fusion Calculator is disabled. Until this is fixed, **you must download and install the offline images.**
 - [Ironmon-Tracker v8.1.0](https://github.com/besteon/Ironmon-Tracker) or higher
 
-## Install
+## Install the Fusion Image Resource Files
+1) Download from the [Pokémon Infinite Fusion discord](https://discord.gg/infinitefusion) or directly from [Google Drive (July 2023 update)](https://drive.google.com/file/d/1YvnSbbp_FZlAE0XBHsXd4NfffJnW4ffm/view?usp=sharing)
+2) If you downloaded a `.zip` file, first extract the contents of the `.zip` file into a new folder
+3) From inside the extracted folder, move the entire **"CustomBattlers"** folder to your Tracker's extension folder.
+   - The folder should appear as: `[YOUR_TRACKER_FOLDER]/extensions/CustomBattlers/`
+
+## Install the Tracker Extension
 1) Download the [latest release](https://github.com/UTDZac/InfiniteFusion-IronmonExtension/releases/latest) of this extension from the GitHub's Releases page
 2) If you downloaded a `.zip` file, first extract the contents of the `.zip` file into a new folder
 3) Put the extension file(s) in the existing "**extensions**" folder found inside your Tracker folder
