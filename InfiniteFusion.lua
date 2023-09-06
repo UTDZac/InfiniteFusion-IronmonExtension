@@ -2,21 +2,24 @@ local function InfiniteFusion()
 	local self = {}
 
 	-- Define descriptive attributes of the custom extension that are displayed on the Tracker settings
-	self.name = "Infinite Fusion Calculator"
+	self.name = "Pokémon Infinite Fusion"
 	self.author = "UTDZac"
-	self.description = "Fuse two Pokémon together using the Infinite Fusion Calculator. Original tool created by Aegide."
-	self.version = "1.1"
+	self.description = "Fuse two Pokémon together from the Pokémon Infinite Fusion game."
+	self.version = "1.2"
 	self.url = "https://github.com/UTDZac/InfiniteFusion-IronmonExtension"
 
 	local ExtConstants = {
+		offlineFolder = FileManager.getCustomFolderPath() .. "CustomBattlers" .. FileManager.slash,
 		onlineUrl = "https://aegide.github.io/",
 		fusionFilename1 = "InfiniteFusion1.png",
 		fusionFilename2 = "InfiniteFusion2.png",
 		unknownName = "???",
 		bulletListIcon = "-",
 		imageCanvas = "client", -- The emulator surface to draw on. Client > Emucore so that it scales better
+		offlineAvailable = false,
 		Formats = {
 			fusionName = "%s / %s  (%s.%s)", -- e.g Shuckle/Pikachu (213.25)
+			fusionFile = "%s.%s.png",
 			fusionUrl = "https://raw.githubusercontent.com/Aegide/custom-fusion-sprites/main/CustomBattlers/%s.%s.png",
 			curlCommand1 = 'curl --ssl-no-revoke -s -o "%s" -w "%%{http_code}," "%s"', -- Fetches a fusion image and returns http status code
 			curlCommand2 = 'curl --ssl-no-revoke -s -o "%s" -w "%%{http_code}" "%s"', -- Fetches a fusion image and returns http status code
@@ -33,6 +36,8 @@ local function InfiniteFusion()
 			fail = 0xFFFF0000, -- Red
 		},
 	}
+
+	ExtConstants.offlineAvailable = FileManager.folderExists(ExtConstants.offlineFolder)
 
 	-- List of all available fusions: key:fusionId, value:fusionName
 	-- https://infinitefusion.fandom.com/wiki/Pok%C3%A9dex
@@ -991,11 +996,12 @@ local function InfiniteFusion()
 	self.FusionFiles = {
 		{
 			fusePairIndex = 2,
-			filepath = FileManager.prependDir(FileManager.Folders.Custom .. FileManager.slash .. ExtConstants.fusionFilename1),
+			filepath = FileManager.getCustomFolderPath() .. ExtConstants.fusionFilename1,
 			fusionId = 0,
 			fusionName = ExtConstants.unknownName,
 			isFetched = false,
 			canDisplay = false,
+			alternates = {},
 			setId = function(this, id)
 				this.fusionId = id
 				this.isFetched = false
@@ -1008,11 +1014,12 @@ local function InfiniteFusion()
 		},
 		{
 			fusePairIndex = 1,
-			filepath = FileManager.prependDir(FileManager.Folders.Custom .. FileManager.slash .. ExtConstants.fusionFilename2),
+			filepath = FileManager.getCustomFolderPath() .. ExtConstants.fusionFilename2,
 			fusionId = 0,
 			fusionName = ExtConstants.unknownName,
 			isFetched = false,
 			canDisplay = false,
+			alternates = {},
 			setId = function(this, id)
 				this.fusionId = id
 				this.isFetched = false
@@ -1026,6 +1033,9 @@ local function InfiniteFusion()
 	}
 
 	local function clearFetchedFusions()
+		for i = 3, #self.FusionFiles, 1 do -- Clear out alternate fusions
+			self.FusionFiles[i] = nil
+		end
 		for _, file in pairs(self.FusionFiles) do
 			file:clear()
 		end
@@ -1045,33 +1055,64 @@ local function InfiniteFusion()
 		return success, FileManager.readLinesFromFile(outFile)
 	end
 
-	local function tryFetchFusionsOnline()
-		local f1, f2 = self.FusionFiles[1], self.FusionFiles[2]
-		-- Don't fetch fusions if both have already been fetched
-		if f1.isFetched and f2.isFetched then
-			return true
+	local function tryFetchFusionsOffline(fusionFile1, fusionFile2)
+		local f1, f2 = fusionFile1, fusionFile2
+		f1.filepath = ExtConstants.offlineFolder .. string.format(ExtConstants.Formats.fusionFile, f1.fusionId, f2.fusionId)
+		f2.filepath = ExtConstants.offlineFolder .. string.format(ExtConstants.Formats.fusionFile, f2.fusionId, f1.fusionId) -- Reverse the order to get the other fusion
+		f1.isFetched = true
+		f2.isFetched = true
+		f1.canDisplay = FileManager.fileExists(f1.filepath)
+		f2.canDisplay = FileManager.fileExists(f2.filepath)
+
+		local createFusionFile = function(referenceFile, letter, path)
+			return {
+				filepath = path,
+				fusionId = referenceFile.fusionId,
+				fusionName = string.format("%s [%s]", referenceFile.fusionName, letter),
+				isFetched = true,
+				canDisplay = true,
+				setId = function(this, id)
+					this.fusionId = id
+					this.isFetched = false
+					this.canDisplay = false
+				end,
+				clear = function(this)
+					this:setId(0)
+					this.fusionName = ExtConstants.unknownName
+				end,
+			}
 		end
 
-		-- Don't fetch fusions if either ID is invalid
-		local id1 = f1.fusionId
-		local id2 = f2.fusionId
-		if not fusionIdToName[id1] or not fusionIdToName[id2] then
-			return false
+		-- Check for alternate fusion images
+		for letter in string.gmatch("abcdefghijklmnopqrstuvwxyz", ".") do
+			local foundAny = false
+			if f1.canDisplay then
+				local altpath = f1.filepath:gsub(".png", letter .. ".png")
+				if FileManager.fileExists(altpath) then
+					foundAny = true
+					self.FusionFiles[#self.FusionFiles + 1] = createFusionFile(f1, letter, altpath)
+				end
+			end
+			if f2.canDisplay then
+				local altpath = f2.filepath:gsub(".png", letter .. ".png")
+				if FileManager.fileExists(altpath) then
+					foundAny = true
+					self.FusionFiles[#self.FusionFiles + 1] = createFusionFile(f2, letter, altpath)
+				end
+			end
+			if not foundAny then
+				break
+			end
 		end
 
-		-- First clear out old fetched fusions
-		clearFetchedFusions()
+		return true
+	end
 
-		local pokemonName1 = fusionIdToName[id1] or ExtConstants.unknownName
-		local pokemonName2 = fusionIdToName[id2] or ExtConstants.unknownName
-		f1.fusionId = id1
-		f1.fusionName = string.format(ExtConstants.Formats.fusionName, pokemonName1, pokemonName2, id1, id2)
-		f2.fusionId = id2
-		f2.fusionName = string.format(ExtConstants.Formats.fusionName, pokemonName2, pokemonName1, id2, id1)
-
+	local function tryFetchFusionsOnline(fusionFile1, fusionFile2)
+		local f1, f2 = fusionFile1, fusionFile2
 		-- Get both fusion images and http status codes
-		local url1 = string.format(ExtConstants.Formats.fusionUrl, id1, id2)
-		local url2 = string.format(ExtConstants.Formats.fusionUrl, id2, id1) -- Reverse the order to get the other fusion
+		local url1 = string.format(ExtConstants.Formats.fusionUrl, f1.fusionId, f2.fusionId)
+		local url2 = string.format(ExtConstants.Formats.fusionUrl, f2.fusionId, f1.fusionId) -- Reverse the order to get the other fusion
 		local command1 = string.format(ExtConstants.Formats.curlCommand1, f1.filepath, url1)
 		local command2 = string.format(ExtConstants.Formats.curlCommand2, f2.filepath, url2)
 		local success, output = dualOSExecute(command1, command2)
@@ -1083,6 +1124,88 @@ local function InfiniteFusion()
 		f2.isFetched = true
 		f1.canDisplay = statusCode1 == "200"
 		f2.canDisplay = statusCode2 == "200"
+
+		return success
+	end
+
+	local function buildAlternateFusionButtons()
+		local altPrefix = "Alternate"
+
+		-- Clear out existing buttons
+		local btnKeysToRemove = {}
+		for key, _ in pairs(self.Buttons) do
+			if string.find(tostring(key), altPrefix, 1, true) then
+				table.insert(btnKeysToRemove, key)
+			end
+		end
+		for _, key in pairs(btnKeysToRemove) do
+			self.Buttons[key] = nil
+		end
+
+		if #self.FusionFiles <= 1 then
+			return
+		end
+
+		local altButtonsTotalHeight = #self.FusionFiles * (Constants.SCREEN.LINESPACING + 2)
+		local offsetY = math.floor((Constants.SCREEN.HEIGHT - 20 - altButtonsTotalHeight) / 2)
+		local createAltBtn = function(text, fusionFileIndex)
+			local btn = {
+				type = Constants.ButtonTypes.FULL_BORDER,
+				getText = function() return text end,
+				box = { 1, offsetY, Utils.calcWordPixelLength(text) + 5, Constants.SCREEN.LINESPACING},
+				textColor = "Default text",
+				isVisible = function() return self.FusionFiles[fusionFileIndex] and not self.Buttons.HamburgerMenu.isOpen end,
+				onClick = function()
+					self.viewedFusionIndex = fusionFileIndex
+					Program.redraw(true)
+				end,
+			}
+			offsetY = offsetY + btn.box[4] + 2
+			return btn
+		end
+
+		for i, fusionFile in ipairs(self.FusionFiles) do
+			local index = i > 2 and (i - 2) or i
+			local altName = (i > 2 and "A" or "F") .. index
+			if fusionFile.canDisplay then
+				self.Buttons[altPrefix .. altName] = createAltBtn(altName, i)
+			end
+		end
+	end
+
+	local function tryFetchFusions()
+		local f1, f2 = self.FusionFiles[1], self.FusionFiles[2]
+		-- Don't fetch fusions if both have already been fetched
+		if f1.isFetched and f2.isFetched then
+			return true
+		end
+		-- Don't fetch fusions if either ID is invalid
+		local id1 = f1.fusionId
+		local id2 = f2.fusionId
+		if not fusionIdToName[id1] or not fusionIdToName[id2] then
+			return false
+		end
+
+		-- First clear out old fetched fusions
+		clearFetchedFusions()
+		f1.fusionId = id1
+		f2.fusionId = id2
+
+		local pokemonName1 = fusionIdToName[id1] or ExtConstants.unknownName
+		local pokemonName2 = fusionIdToName[id2] or ExtConstants.unknownName
+		f1.fusionName = string.format(ExtConstants.Formats.fusionName, pokemonName1, pokemonName2, id1, id2)
+		f2.fusionName = string.format(ExtConstants.Formats.fusionName, pokemonName2, pokemonName1, id2, id1)
+
+		local success = false
+		if ExtConstants.offlineAvailable then
+			success = tryFetchFusionsOffline(f1, f2)
+		else
+			success = tryFetchFusionsOnline(f1, f2)
+		end
+
+		if success then
+			buildAlternateFusionButtons()
+		end
 
 		-- If the first result is missing but the second is available, show that first
 		if not f1.canDisplay and f2.canDisplay then
@@ -1097,7 +1220,7 @@ local function InfiniteFusion()
 		if not self.isDisplayed then return end
 
 		if self.currentScreen == ExtConstants.Screens.MainFusion then
-			tryFetchFusionsOnline()
+			tryFetchFusions()
 		elseif self.currentScreen == ExtConstants.Screens.PokemonLookup then
 			if LogSearchScreen.searchText ~= prevSearchText then
 				prevSearchText = LogSearchScreen.searchText
