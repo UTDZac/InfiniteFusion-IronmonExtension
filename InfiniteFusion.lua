@@ -5,7 +5,7 @@ local function InfiniteFusion()
 	self.name = "Pokémon Infinite Fusion"
 	self.author = "UTDZac"
 	self.description = "Fuse two Pokémon together from the Pokémon Infinite Fusion game."
-	self.version = "1.2"
+	self.version = "1.3"
 	self.url = "https://github.com/UTDZac/InfiniteFusion-IronmonExtension"
 
 	local ExtConstants = {
@@ -1152,9 +1152,11 @@ local function InfiniteFusion()
 			local btn = {
 				type = Constants.ButtonTypes.FULL_BORDER,
 				getText = function() return text end,
-				box = { 1, offsetY, Utils.calcWordPixelLength(text) + 5, Constants.SCREEN.LINESPACING},
+				box = { 2, offsetY, Utils.calcWordPixelLength(text) + 5, Constants.SCREEN.LINESPACING},
 				textColor = "Default text",
-				isVisible = function() return self.FusionFiles[fusionFileIndex] and not self.Buttons.HamburgerMenu.isOpen end,
+				isVisible = function()
+					return self.FusionFiles[fusionFileIndex] and self.currentScreen == ExtConstants.Screens.MainFusion and not self.Buttons.HamburgerMenu.isOpen
+				end,
 				onClick = function()
 					self.viewedFusionIndex = fusionFileIndex
 					Program.redraw(true)
