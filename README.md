@@ -1,6 +1,8 @@
 # InfiniteFusion-IronmonExtension
 Fuse two Pokémon together from the Pokémon Infinite Fusion game.
 
+List of currently available fusions: [infinitefusion.fandom.com](https://infinitefusion.fandom.com/wiki/Pok%C3%A9dex)
+
 ## Requirements
 - Offline image resources for the fusions (about 350 MB), see [here](#install-the-fusion-image-resource-files) for details
    - Currently the online Infinite Fusion Calculator is disabled. Until this is fixed, **you must download and install the offline images.**
