@@ -615,6 +615,18 @@ local function InfiniteFusion()
 		clearClientGraphics()
 	end
 
+	local function clearFetchedFusions()
+		-- Clear out alternate fusions
+		for i = 3, 24, 1 do
+			self.FusionFiles[i] = nil
+		end
+		for _, file in pairs(self.FusionFiles) do
+			file:clear()
+		end
+		self.viewedFusionIndex = 1
+		clearClientGraphics()
+	end
+
 	local buttonW, buttonH = 78, 16
 	local anyButtonClicked = false
 	self.Buttons = {
@@ -658,10 +670,7 @@ local function InfiniteFusion()
 			end,
 			onClick = function(this)
 				self.Buttons.HamburgerMenu.isOpen = false
-				for _, fusionFile in pairs(self.FusionFiles) do
-					fusionFile:clear()
-				end
-				clearClientGraphics()
+				clearFetchedFusions()
 				Program.redraw(true)
 				anyButtonClicked = true
 			end,
@@ -1038,17 +1047,6 @@ local function InfiniteFusion()
 		},
 	}
 
-	local function clearFetchedFusions()
-		for i = 3, #self.FusionFiles, 1 do -- Clear out alternate fusions
-			self.FusionFiles[i] = nil
-		end
-		for _, file in pairs(self.FusionFiles) do
-			file:clear()
-		end
-		self.viewedFusionIndex = 1
-		clearClientGraphics()
-	end
-
 	local function dualOSExecute(command1, command2)
 		local fetchMsg = "Fetching fusion images..."
 		local outFile = FileManager.prependDir(FileManager.Files.OSEXECUTE_OUTPUT)
@@ -1161,7 +1159,9 @@ local function InfiniteFusion()
 				box = { 2, offsetY, Utils.calcWordPixelLength(text) + 5, Constants.SCREEN.LINESPACING},
 				textColor = "Default text",
 				isVisible = function()
-					return self.FusionFiles[fusionFileIndex] and self.currentScreen == ExtConstants.Screens.MainFusion and not self.Buttons.HamburgerMenu.isOpen
+					local canShowFusion = self.FusionFiles[fusionFileIndex] and self.FusionFiles[fusionFileIndex].canDisplay
+					local onCorrectScreen = self.currentScreen == ExtConstants.Screens.MainFusion and not self.Buttons.HamburgerMenu.isOpen
+					return canShowFusion and onCorrectScreen
 				end,
 				onClick = function()
 					self.viewedFusionIndex = fusionFileIndex
