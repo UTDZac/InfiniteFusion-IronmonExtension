@@ -509,7 +509,13 @@ local function InfiniteFusion()
 
 	self.viewedFusionIndex = 1
 	function self.viewNextFusion()
-		self.viewedFusionIndex = (self.viewedFusionIndex % #self.FusionFiles) + 1
+		for i = self.viewedFusionIndex, (self.viewedFusionIndex + #self.FusionFiles), 1 do
+			local nextIndex = (i % #self.FusionFiles) + 1
+			if self.FusionFiles[nextIndex] and self.FusionFiles[nextIndex].canDisplay then
+				self.viewedFusionIndex = nextIndex
+				break
+			end
+		end
 	end
 
 	local natDexToFusionID = {
@@ -1062,7 +1068,7 @@ local function InfiniteFusion()
 		f1.isFetched = true
 		f2.isFetched = true
 		f1.canDisplay = FileManager.fileExists(f1.filepath)
-		f2.canDisplay = FileManager.fileExists(f2.filepath)
+		f2.canDisplay = f1.fusionId ~= f2.fusionId and FileManager.fileExists(f2.filepath)
 
 		local createFusionFile = function(referenceFile, letter, path)
 			return {
