@@ -5,7 +5,7 @@ local function InfiniteFusion()
 	self.name = "Pokémon Infinite Fusion"
 	self.author = "UTDZac"
 	self.description = "Fuse two Pokémon together from the Pokémon Infinite Fusion game."
-	self.version = "1.3"
+	self.version = "1.4"
 	self.url = "https://github.com/UTDZac/InfiniteFusion-IronmonExtension"
 
 	local ExtConstants = {
@@ -1090,19 +1090,15 @@ local function InfiniteFusion()
 		-- Check for alternate fusion images
 		for letter in string.gmatch("abcdefghijklmnopqrstuvwxyz", ".") do
 			local foundAny = false
-			if f1.canDisplay then
-				local altpath = f1.filepath:gsub(".png", letter .. ".png")
-				if FileManager.fileExists(altpath) then
-					foundAny = true
-					self.FusionFiles[#self.FusionFiles + 1] = createFusionFile(f1, letter, altpath)
-				end
+			local altpath1 = f1.filepath:gsub(".png", letter .. ".png")
+			local altpath2 = f2.filepath:gsub(".png", letter .. ".png")
+			if FileManager.fileExists(altpath1) then
+				foundAny = true
+				self.FusionFiles[#self.FusionFiles + 1] = createFusionFile(f1, letter, altpath1)
 			end
-			if f2.canDisplay then
-				local altpath = f2.filepath:gsub(".png", letter .. ".png")
-				if FileManager.fileExists(altpath) then
-					foundAny = true
-					self.FusionFiles[#self.FusionFiles + 1] = createFusionFile(f2, letter, altpath)
-				end
+			if FileManager.fileExists(altpath2) then
+				foundAny = true
+				self.FusionFiles[#self.FusionFiles + 1] = createFusionFile(f2, letter, altpath2)
 			end
 			if not foundAny then
 				break
