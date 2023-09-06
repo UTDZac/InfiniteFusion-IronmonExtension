@@ -4,24 +4,28 @@ Fuse two Pokémon together from the Pokémon Infinite Fusion game.
 List of currently available fusions: [infinitefusion.fandom.com](https://infinitefusion.fandom.com/wiki/Pok%C3%A9dex)
 
 ## Requirements
-- Offline image resources for the fusions (about 350 MB), see [here](#install-the-fusion-image-resource-files) for details
+- Offline image resources for the fusions (about 350 MB), see [here](#step-1-install-the-fusion-image-resource-files) for details
    - Currently the online Infinite Fusion Calculator is disabled. Until this is fixed, **you must download and install the offline images.**
 - [Ironmon-Tracker v8.1.0](https://github.com/besteon/Ironmon-Tracker) or higher
 
-## Install the Fusion Image Resource Files
+## Install
+
+### Step 1: Install the Fusion Image Resource Files
+If you've already downloaded and installed these files, you can skip this entire section.
+
 1) Download from the [Pokémon Infinite Fusion discord](https://discord.gg/infinitefusion) or directly from [Google Drive (July 2023 update)](https://drive.google.com/file/d/1YvnSbbp_FZlAE0XBHsXd4NfffJnW4ffm/view?usp=sharing)
 2) If you downloaded a `.zip` file, first extract the contents of the `.zip` file into a new folder
 3) From inside the extracted folder, look for the **"CustomBattlers"** folder.
 4) Move the entire **"CustomBattlers"** folder to your Tracker's extension folder.
    - The folder should appear as: `[YOUR_TRACKER_FOLDER]/extensions/CustomBattlers/`
 
-## Install the Tracker Extension
+### Step 2: Install the Tracker Extension
 1) Download the [latest release](https://github.com/UTDZac/InfiniteFusion-IronmonExtension/releases/latest) of this extension from the GitHub's Releases page
 2) If you downloaded a `.zip` file, first extract the contents of the `.zip` file into a new folder
 3) Put the extension file(s) in the existing "**extensions**" folder found inside your Tracker folder
    - The file(s) should appear as: `[YOUR_TRACKER_FOLDER]/extensions/InfiniteFusion.lua`
 
-## Enable the Extension
+### Step 3: Enable the Extension
 1) On the Tracker settings menu (click the gear icon on the Tracker window), click the "**Extensions**" button
 2) In the Extensions menu, enable "**Allow custom code to run**" (if it is currently disabled)
 3) Click the "**Install New**" button at the bottom to check for newly installed extensions
