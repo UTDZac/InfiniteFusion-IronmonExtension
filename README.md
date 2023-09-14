@@ -15,7 +15,8 @@ If you've already downloaded and installed these files, you can skip this entire
 
 1) Download from the [Pokémon Infinite Fusion discord](https://discord.gg/infinitefusion) or directly from [Google Drive (July 2023 update)](https://drive.google.com/file/d/1YvnSbbp_FZlAE0XBHsXd4NfffJnW4ffm/view?usp=sharing)
 2) If you downloaded a `.zip` file, first extract the contents of the `.zip` file into a new folder
-3) From inside the extracted folder, look for the **"CustomBattlers"** folder.
+3) From inside the extracted folder, look for the **"CustomBattlers"** folder. This is the only folder you'll need, ignore the others.
+   - ![image](https://github.com/UTDZac/InfiniteFusion-IronmonExtension/assets/4258818/76c68a85-a688-4286-83aa-5ea9ae4365a8)
 4) Move the entire **"CustomBattlers"** folder to your Tracker's extension folder.
    - The folder should appear as: `[YOUR_TRACKER_FOLDER]/extensions/CustomBattlers/`
 
