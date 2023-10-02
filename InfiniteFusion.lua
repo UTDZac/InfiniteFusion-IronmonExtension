@@ -5,7 +5,7 @@ local function InfiniteFusion()
 	self.name = "Pokémon Infinite Fusion"
 	self.author = "UTDZac"
 	self.description = "Fuse two Pokémon together from the Pokémon Infinite Fusion game."
-	self.version = "1.4"
+	self.version = "2.0"
 	self.url = "https://github.com/UTDZac/InfiniteFusion-IronmonExtension"
 
 	local ExtConstants = {
@@ -39,429 +39,61 @@ local function InfiniteFusion()
 
 	ExtConstants.offlineAvailable = FileManager.folderExists(ExtConstants.offlineFolder)
 
-	-- List of all available fusions: key:fusionId, value:fusionName
+	local EMPTY_FUSION = ""
+	-- List of all available fusions, in order: key:fusionId, value:fusionName
 	-- https://infinitefusion.fandom.com/wiki/Pok%C3%A9dex
 	local fusionIdToName = {
-		[1] = "Bulbasaur",
-		[2] = "Ivysaur",
-		[3] = "Venusaur",
-		[4] = "Charmander",
-		[5] = "Charmeleon",
-		[6] = "Charizard",
-		[7] = "Squirtle",
-		[8] = "Wartortle",
-		[9] = "Blastoise",
-		[10] = "Caterpie",
-		[11] = "Metapod",
-		[12] = "Butterfree",
-		[13] = "Weedle",
-		[14] = "Kakuna",
-		[15] = "Beedrill",
-		[16] = "Pidgey",
-		[17] = "Pidgeotto",
-		[18] = "Pidgeot",
-		[19] = "Rattata",
-		[20] = "Raticate",
-		[21] = "Spearow",
-		[22] = "Fearow",
-		[23] = "Ekans",
-		[24] = "Arbok",
-		[25] = "Pikachu",
-		[26] = "Raichu",
-		[27] = "Sandshrew",
-		[28] = "Sandslash",
-		[29] = "NidoranF",
-		[30] = "Nidorina",
-		[31] = "Nidoqueen",
-		[32] = "NidoranM",
-		[33] = "Nidorino",
-		[34] = "Nidoking",
-		[35] = "Clefairy",
-		[36] = "Clefable",
-		[37] = "Vulpix",
-		[38] = "Ninetales",
-		[39] = "Jigglypuff",
-		[40] = "Wigglytuff",
-		[41] = "Zubat",
-		[42] = "Golbat",
-		[43] = "Oddish",
-		[44] = "Gloom",
-		[45] = "Vileplume",
-		[46] = "Paras",
-		[47] = "Parasect",
-		[48] = "Venonat",
-		[49] = "Venomoth",
-		[50] = "Diglett",
-		[51] = "Dugtrio",
-		[52] = "Meowth",
-		[53] = "Persian",
-		[54] = "Psyduck",
-		[55] = "Golduck",
-		[56] = "Mankey",
-		[57] = "Primeape",
-		[58] = "Growlithe",
-		[59] = "Arcanine",
-		[60] = "Poliwag",
-		[61] = "Poliwhirl",
-		[62] = "Poliwrath",
-		[63] = "Abra",
-		[64] = "Kadabra",
-		[65] = "Alakazam",
-		[66] = "Machop",
-		[67] = "Machoke",
-		[68] = "Machamp",
-		[69] = "Bellsprout",
-		[70] = "Weepinbell",
-		[71] = "Victreebel",
-		[72] = "Tentacool",
-		[73] = "Tentacruel",
-		[74] = "Geodude",
-		[75] = "Graveler",
-		[76] = "Golem",
-		[77] = "Ponyta",
-		[78] = "Rapidash",
-		[79] = "Slowpoke",
-		[80] = "Slowbro",
-		[81] = "Magnemite",
-		[82] = "Magneton",
-		[83] = "Farfetch'd",
-		[84] = "Doduo",
-		[85] = "Dodrio",
-		[86] = "Seel",
-		[87] = "Dewgong",
-		[88] = "Grimer",
-		[89] = "Muk",
-		[90] = "Shellder",
-		[91] = "Cloyster",
-		[92] = "Gastly",
-		[93] = "Haunter",
-		[94] = "Gengar",
-		[95] = "Onix",
-		[96] = "Drowzee",
-		[97] = "Hypno",
-		[98] = "Krabby",
-		[99] = "Kingler",
-		[100] = "Voltorb",
-		[101] = "Electrode",
-		[102] = "Exeggcute",
-		[103] = "Exeggutor",
-		[104] = "Cubone",
-		[105] = "Marowak",
-		[106] = "Hitmonlee",
-		[107] = "Hitmonchan",
-		[108] = "Lickitung",
-		[109] = "Koffing",
-		[110] = "Weezing",
-		[111] = "Rhyhorn",
-		[112] = "Rhydon",
-		[113] = "Chansey",
-		[114] = "Tangela",
-		[115] = "Kangaskhan",
-		[116] = "Horsea",
-		[117] = "Seadra",
-		[118] = "Goldeen",
-		[119] = "Seaking",
-		[120] = "Staryu",
-		[121] = "Starmie",
-		[122] = "Mr. Mime",
-		[123] = "Scyther",
-		[124] = "Jynx",
-		[125] = "Electabuzz",
-		[126] = "Magmar",
-		[127] = "Pinsir",
-		[128] = "Tauros",
-		[129] = "Magikarp",
-		[130] = "Gyarados",
-		[131] = "Lapras",
-		[132] = "Ditto",
-		[133] = "Eevee",
-		[134] = "Vaporeon",
-		[135] = "Jolteon",
-		[136] = "Flareon",
-		[137] = "Porygon",
-		[138] = "Omanyte",
-		[139] = "Omastar",
-		[140] = "Kabuto",
-		[141] = "Kabutops",
-		[142] = "Aerodactyl",
-		[143] = "Snorlax",
-		[144] = "Articuno",
-		[145] = "Zapdos",
-		[146] = "Moltres",
-		[147] = "Dratini",
-		[148] = "Dragonair",
-		[149] = "Dragonite",
-		[150] = "Mewtwo",
-		[151] = "Mew",
-		[152] = "Chikorita",
-		[153] = "Bayleef",
-		[154] = "Meganium",
-		[155] = "Cyndaquil",
-		[156] = "Quilava",
-		[157] = "Typhlosion",
-		[158] = "Totodile",
-		[159] = "Croconaw",
-		[160] = "Feraligatr",
-		[161] = "Sentret",
-		[162] = "Furret",
-		[163] = "Hoothoot",
-		[164] = "Noctowl",
-		[165] = "Ledyba",
-		[166] = "Ledian",
-		[167] = "Spinarak",
-		[168] = "Ariados",
-		[169] = "Crobat",
-		[170] = "Chinchou",
-		[171] = "Lanturn",
-		[172] = "Pichu",
-		[173] = "Cleffa",
-		[174] = "Igglybuff",
-		[175] = "Togepi",
-		[176] = "Togetic",
-		[177] = "Natu",
-		[178] = "Xatu",
-		[179] = "Mareep",
-		[180] = "Flaaffy",
-		[181] = "Ampharos",
-		[182] = "Bellossom",
-		[183] = "Marill",
-		[184] = "Azumarill",
-		[185] = "Sudowoodo",
-		[186] = "Politoed",
-		[187] = "Hoppip",
-		[188] = "Skiploom",
-		[189] = "Jumpluff",
-		[190] = "Aipom",
-		[191] = "Sunkern",
-		[192] = "Sunflora",
-		[193] = "Yanma",
-		[194] = "Wooper",
-		[195] = "Quagsire",
-		[196] = "Espeon",
-		[197] = "Umbreon",
-		[198] = "Murkrow",
-		[199] = "Slowking",
-		[200] = "Misdreavus",
-		[201] = "Unown",
-		[202] = "Wobbuffet",
-		[203] = "Girafarig",
-		[204] = "Pineco",
-		[205] = "Forretress",
-		[206] = "Dunsparce",
-		[207] = "Gligar",
-		[208] = "Steelix",
-		[209] = "Snubbull",
-		[210] = "Granbull",
-		[211] = "Qwilfish",
-		[212] = "Scizor",
-		[213] = "Shuckle",
-		[214] = "Heracross",
-		[215] = "Sneasel",
-		[216] = "Teddiursa",
-		[217] = "Ursaring",
-		[218] = "Slugma",
-		[219] = "Magcargo",
-		[220] = "Swinub",
-		[221] = "Piloswine",
-		[222] = "Corsola",
-		[223] = "Remoraid",
-		[224] = "Octillery",
-		[225] = "Delibird",
-		[226] = "Mantine",
-		[227] = "Skarmory",
-		[228] = "Houndour",
-		[229] = "Houndoom",
-		[230] = "Kingdra",
-		[231] = "Phanpy",
-		[232] = "Donphan",
-		[233] = "Porygon2",
-		[234] = "Stantler",
-		[235] = "Smeargle",
-		[236] = "Tyrogue",
-		[237] = "Hitmontop",
-		[238] = "Smoochum",
-		[239] = "Elekid",
-		[240] = "Magby",
-		[241] = "Miltank",
-		[242] = "Blissey",
-		[243] = "Raikou",
-		[244] = "Entei",
-		[245] = "Suicune",
-		[246] = "Larvitar",
-		[247] = "Pupitar",
-		[248] = "Tyranitar",
-		[249] = "Lugia",
-		[250] = "Ho-oh",
-		[251] = "Celebi",
-		[252] = "Azurill",
-		[253] = "Wynaut",
-		[254] = "Ambipom",
-		[255] = "Mismagius",
-		[256] = "Honchkrow",
-		[257] = "Bonsly",
-		[258] = "Mime Jr.",
-		[259] = "Happiny",
-		[260] = "Munchlax",
-		[261] = "Mantyke",
-		[262] = "Weavile",
-		[263] = "Magnezone",
-		[264] = "Lickilicky",
-		[265] = "Rhyperior",
-		[266] = "Tangrowth",
-		[267] = "Electivire",
-		[268] = "Magmortar",
-		[269] = "Togekiss",
-		[270] = "Yanmega",
-		[271] = "Leafeon",
-		[272] = "Glaceon",
-		[273] = "Gliscor",
-		[274] = "Mamoswine",
-		[275] = "Porygon-Z",
-		[276] = "Treecko",
-		[277] = "Grovyle",
-		[278] = "Sceptile",
-		[279] = "Torchic",
-		[280] = "Combusken",
-		[281] = "Blaziken",
-		[282] = "Mudkip",
-		[283] = "Marshtomp",
-		[284] = "Swampert",
-		[285] = "Ralts",
-		[286] = "Kirlia",
-		[287] = "Gardevoir",
-		[288] = "Gallade",
-		[289] = "Shedinja",
-		[290] = "Kecleon",
-		[291] = "Beldum",
-		[292] = "Metang",
-		[293] = "Metagross",
-		[294] = "Bidoof",
-		[295] = "Spiritomb",
-		[296] = "Lucario",
-		[297] = "Gible",
-		[298] = "Gabite",
-		[299] = "Garchomp",
-		[300] = "Mawile",
-		[301] = "Lileep",
-		[302] = "Cradily",
-		[303] = "Anorith",
-		[304] = "Armaldo",
-		[305] = "Cranidos",
-		[306] = "Rampardos",
-		[307] = "Shieldon",
-		[308] = "Bastiodon",
-		[309] = "Slaking",
-		[310] = "Absol",
-		[311] = "Duskull",
-		[312] = "Dusclops",
-		[313] = "Dusknoir",
-		[314] = "Wailord",
-		[315] = "Arceus",
-		[316] = "Turtwig",
-		[317] = "Grotle",
-		[318] = "Torterra",
-		[319] = "Chimchar",
-		[320] = "Monferno",
-		[321] = "Infernape",
-		[322] = "Piplup",
-		[323] = "Prinplup",
-		[324] = "Empoleon",
-		[325] = "Nosepass",
-		[326] = "Probopass",
-		[327] = "Honedge",
-		[328] = "Doublade",
-		[329] = "Aegislash",
-		[330] = "Pawniard",
-		[331] = "Bisharp",
-		[332] = "Luxray",
-		[333] = "Aggron",
-		[334] = "Flygon",
-		[335] = "Milotic",
-		[336] = "Salamence",
-		[337] = "Klinklang",
-		[338] = "Zoroark",
-		[339] = "Sylveon",
-		[340] = "Kyogre",
-		[341] = "Groudon",
-		[342] = "Rayquaza",
-		[343] = "Dialga",
-		[344] = "Palkia",
-		[345] = "Giratina",
-		[346] = "Regigigas",
-		[347] = "Darkrai",
-		[348] = "Genesect",
-		[349] = "Reshiram",
-		[350] = "Zekrom",
-		[351] = "Kyurem",
-		[352] = "Roserade",
-		[353] = "Drifblim",
-		[354] = "Lopunny",
-		[355] = "Breloom",
-		[356] = "Ninjask",
-		[357] = "Banette",
-		[358] = "Rotom",
-		[359] = "Reuniclus",
-		[360] = "Whimsicott",
-		[361] = "Krookodile",
-		[362] = "Cofagrigus",
-		[363] = "Galvantula",
-		[364] = "Ferrothorn",
-		[365] = "Litwick",
-		[366] = "Lampent",
-		[367] = "Chandelure",
-		[368] = "Haxorus",
-		[369] = "Golurk",
-		[370] = "Pyukumuku",
-		[371] = "Klefki",
-		[372] = "Talonflame",
-		[373] = "Mimikyu",
-		[374] = "Volcarona",
-		[375] = "Deino",
-		[376] = "Zweilous",
-		[377] = "Hydreigon",
-		[378] = "Latias",
-		[379] = "Latios",
-		[380] = "Deoxys",
-		[381] = "Jirachi",
-		[382] = "Nincada",
-		[383] = "Bibarel",
-		[384] = "Riolu",
-		[385] = "Slakoth",
-		[386] = "Vigoroth",
-		[387] = "Wailmer",
-		[388] = "Shinx",
-		[389] = "Luxio",
-		[390] = "Aron",
-		[391] = "Lairon",
-		[392] = "Trapinch",
-		[393] = "Vibrava",
-		[394] = "Feebas",
-		[395] = "Bagon",
-		[396] = "Shelgon",
-		[397] = "Klink",
-		[398] = "Klang",
-		[399] = "Zorua",
-		[400] = "Budew",
-		[401] = "Roselia",
-		[402] = "Drifloon",
-		[403] = "Buneary",
-		[404] = "Shroomish",
-		[405] = "Shuppet",
-		[406] = "Solosis",
-		[407] = "Duosion",
-		[408] = "Cottonee",
-		[409] = "Sandile",
-		[410] = "Krokorok",
-		[411] = "Yamask",
-		[412] = "Joltik",
-		[413] = "Ferroseed",
-		[414] = "Axew",
-		[415] = "Fraxure",
-		[416] = "Golett",
-		[417] = "Fletchling",
-		[418] = "Fletchinder",
-		[419] = "Larvesta",
-		[420] = "Stunfisk",
+		"Bulbasaur", "Ivysaur", "Venusaur", "Charmander", "Charmeleon", "Charizard", "Squirtle", "Wartortle", "Blastoise",
+		"Caterpie", "Metapod", "Butterfree", "Weedle", "Kakuna", "Beedrill", "Pidgey", "Pidgeotto", "Pidgeot", "Rattata",
+		"Raticate", "Spearow", "Fearow", "Ekans", "Arbok", "Pikachu", "Raichu", "Sandshrew", "Sandslash", "NidoranF", "Nidorina",
+		"Nidoqueen", "NidoranM", "Nidorino", "Nidoking", "Clefairy", "Clefable", "Vulpix", "Ninetales", "Jigglypuff", "Wigglytuff",
+		"Zubat", "Golbat", "Oddish", "Gloom", "Vileplume", "Paras", "Parasect", "Venonat", "Venomoth", "Diglett", "Dugtrio", "Meowth",
+		"Persian", "Psyduck", "Golduck", "Mankey", "Primeape", "Growlithe", "Arcanine", "Poliwag", "Poliwhirl", "Poliwrath", "Abra",
+		"Kadabra", "Alakazam", "Machop", "Machoke", "Machamp", "Bellsprout", "Weepinbell", "Victreebel", "Tentacool", "Tentacruel",
+		"Geodude", "Graveler", "Golem", "Ponyta", "Rapidash", "Slowpoke", "Slowbro", "Magnemite", "Magneton", "Farfetch'd", "Doduo",
+		"Dodrio", "Seel", "Dewgong", "Grimer", "Muk", "Shellder", "Cloyster", "Gastly", "Haunter", "Gengar", "Onix", "Drowzee",
+		"Hypno", "Krabby", "Kingler", "Voltorb", "Electrode", "Exeggcute", "Exeggutor", "Cubone", "Marowak", "Hitmonlee", "Hitmonchan",
+		"Lickitung", "Koffing", "Weezing", "Rhyhorn", "Rhydon", "Chansey", "Tangela", "Kangaskhan", "Horsea", "Seadra", "Goldeen",
+		"Seaking", "Staryu", "Starmie", "Mr. Mime", "Scyther", "Jynx", "Electabuzz", "Magmar", "Pinsir", "Tauros", "Magikarp",
+		"Gyarados", "Lapras", "Ditto", "Eevee", "Vaporeon", "Jolteon", "Flareon", "Porygon", "Omanyte", "Omastar", "Kabuto",
+		"Kabutops", "Aerodactyl", "Snorlax", "Articuno", "Zapdos", "Moltres", "Dratini", "Dragonair", "Dragonite", "Mewtwo", "Mew",
+		"Chikorita", "Bayleef", "Meganium", "Cyndaquil", "Quilava", "Typhlosion", "Totodile", "Croconaw", "Feraligatr", "Sentret",
+		"Furret", "Hoothoot", "Noctowl", "Ledyba", "Ledian", "Spinarak", "Ariados", "Crobat", "Chinchou", "Lanturn", "Pichu",
+		"Cleffa", "Igglybuff", "Togepi", "Togetic", "Natu", "Xatu", "Mareep", "Flaaffy", "Ampharos", "Bellossom", "Marill", "Azumarill",
+		"Sudowoodo", "Politoed", "Hoppip", "Skiploom", "Jumpluff", "Aipom", "Sunkern", "Sunflora", "Yanma", "Wooper", "Quagsire",
+		"Espeon", "Umbreon", "Murkrow", "Slowking", "Misdreavus", "Unown", "Wobbuffet", "Girafarig", "Pineco", "Forretress",
+		"Dunsparce", "Gligar", "Steelix", "Snubbull", "Granbull", "Qwilfish", "Scizor", "Shuckle", "Heracross", "Sneasel", "Teddiursa",
+		"Ursaring", "Slugma", "Magcargo", "Swinub", "Piloswine", "Corsola", "Remoraid", "Octillery", "Delibird", "Mantine", "Skarmory",
+		"Houndour", "Houndoom", "Kingdra", "Phanpy", "Donphan", "Porygon2", "Stantler", "Smeargle", "Tyrogue", "Hitmontop", "Smoochum",
+		"Elekid", "Magby", "Miltank", "Blissey", "Raikou", "Entei", "Suicune", "Larvitar", "Pupitar", "Tyranitar", "Lugia", "Ho-oh",
+		"Celebi", "Azurill", "Wynaut", "Ambipom", "Mismagius", "Honchkrow", "Bonsly", "Mime Jr.", "Happiny", "Munchlax", "Mantyke",
+		"Weavile", "Magnezone", "Lickilicky", "Rhyperior", "Tangrowth", "Electivire", "Magmortar", "Togekiss", "Yanmega", "Leafeon",
+		"Glaceon", "Gliscor", "Mamoswine", "Porygon-Z", "Treecko", "Grovyle", "Sceptile", "Torchic", "Combusken", "Blaziken", "Mudkip",
+		"Marshtomp", "Swampert", "Ralts", "Kirlia", "Gardevoir", "Gallade", "Shedinja", "Kecleon", "Beldum", "Metang", "Metagross",
+		"Bidoof", "Spiritomb", "Lucario", "Gible", "Gabite", "Garchomp", "Mawile", "Lileep", "Cradily", "Anorith", "Armaldo",
+		"Cranidos", "Rampardos", "Shieldon", "Bastiodon", "Slaking", "Absol", "Duskull", "Dusclops", "Dusknoir", "Wailord", "Arceus",
+		"Turtwig", "Grotle", "Torterra", "Chimchar", "Monferno", "Infernape", "Piplup", "Prinplup", "Empoleon", "Nosepass",
+		"Probopass", "Honedge", "Doublade", "Aegislash", "Pawniard", "Bisharp", "Luxray", "Aggron", "Flygon", "Milotic", "Salamence",
+		"Klinklang", "Zoroark", "Sylveon", "Kyogre", "Groudon", "Rayquaza", "Dialga", "Palkia", "Giratina", "Regigigas", "Darkrai",
+		"Genesect", "Reshiram", "Zekrom", "Kyurem", "Roserade", "Drifblim", "Lopunny", "Breloom", "Ninjask", "Banette", "Rotom",
+		"Reuniclus", "Whimsicott", "Krookodile", "Cofagrigus", "Galvantula", "Ferrothorn", "Litwick", "Lampent", "Chandelure",
+		"Haxorus", "Golurk", "Pyukumuku", "Klefki", "Talonflame", "Mimikyu", "Volcarona", "Deino", "Zweilous", "Hydreigon", "Latias",
+		"Latios", "Deoxys", "Jirachi", "Nincada", "Bibarel", "Riolu", "Slakoth", "Vigoroth", "Wailmer", "Shinx", "Luxio", "Aron",
+		"Lairon", "Trapinch", "Vibrava", "Feebas", "Bagon", "Shelgon", "Klink", "Klang", "Zorua", "Budew", "Roselia", "Drifloon",
+		"Buneary", "Shroomish", "Shuppet", "Solosis", "Duosion", "Cottonee", "Sandile", "Krokorok", "Yamask", "Joltik", "Ferroseed",
+		"Axew", "Fraxure", "Golett", "Fletchling", "Fletchinder", "Larvesta", "Stunfisk", "Sableye", "Venipede", "Whirlipede",
+		"Scolipede", "Tyrunt", "Tyrantrum", "Snorunt", "Glalie", "Froslass", "OricorioBaile", "OricorioPom", "OricorioPa'u",
+		"OricorioSensu", "Trubbish", "Garbodor", "Carvanha", "Sharpedo", "Phantump", "Trevenant", "Noibat", "Noivern", "Swablu",
+		"Altaria", "Goomy", "Sliggoo", "Goodra",
+		EMPTY_FUSION,
+		EMPTY_FUSION,
+		EMPTY_FUSION,
+		EMPTY_FUSION,
+		"Stufful",
+		"Bewear",
+		"Dhelmise",
+		"Mareanie",
+		"Toxapex",
 	}
 	local nameMaxWidth = 0
 	for _, name in pairs(fusionIdToName) do
@@ -475,7 +107,7 @@ local function InfiniteFusion()
 		-- Try up to 42 times to get a different random id
 		for i=1, 42, 1 do
 			local randomId = math.random(#fusionIdToName)
-			if randomId ~= previousId then
+			if randomId ~= previousId and fusionIdToName[randomId] ~= EMPTY_FUSION then
 				return randomId
 			end
 		end
@@ -572,7 +204,7 @@ local function InfiniteFusion()
 		local fusionFile = self.FusionFiles[1]
 		local pokemon = Tracker.getPokemon(1, true) or Tracker.getDefaultPokemon()
 		local id = getFusionIdFromInternalId(pokemon.pokemonID)
-		if fusionIdToName[id] then
+		if fusionIdToName[id] and fusionIdToName[id] ~= EMPTY_FUSION then
 			fusionFile:setId(id)
 		else
 			fusionFile:setId(0)
@@ -583,7 +215,7 @@ local function InfiniteFusion()
 			fusionFile = self.FusionFiles[2]
 			pokemon = Battle.getViewedPokemon(false) or Tracker.getDefaultPokemon()
 			id = getFusionIdFromInternalId(pokemon.pokemonID)
-			if fusionIdToName[id] then
+			if fusionIdToName[id] and fusionIdToName[id] ~= EMPTY_FUSION then
 				fusionFile:setId(id)
 			else
 				fusionFile:setId(0)
@@ -806,8 +438,14 @@ local function InfiniteFusion()
 			onClick = function(this)
 				self.Buttons.HamburgerMenu.isOpen = false
 				local fusionFile = self.FusionFiles[this.fusionFileIndex]
-				local id = getRandomFusionId(fusionFile.fusionId)
-				fusionFile:setId(id)
+				-- Try up to 42 times to find a valid fusion file image
+				for _ = 1, 42, 1 do
+					local id = getRandomFusionId(fusionFile.fusionId)
+					fusionFile:setId(id)
+					if self.tryFetchFusions() then
+						break
+					end
+				end
 				self.refreshButtons()
 				Program.redraw(true)
 				anyButtonClicked = true
@@ -823,8 +461,14 @@ local function InfiniteFusion()
 			onClick = function(this)
 				self.Buttons.HamburgerMenu.isOpen = false
 				local fusionFile = self.FusionFiles[this.fusionFileIndex]
-				local id = getRandomFusionId(fusionFile.fusionId)
-				fusionFile:setId(id)
+				-- Try up to 42 times to find a valid fusion file image
+				for _ = 1, 42, 1 do
+					local id = getRandomFusionId(fusionFile.fusionId)
+					fusionFile:setId(id)
+					if self.tryFetchFusions() then
+						break
+					end
+				end
 				self.refreshButtons()
 				Program.redraw(true)
 				anyButtonClicked = true
@@ -845,9 +489,15 @@ local function InfiniteFusion()
 			end,
 			onClick = function(this)
 				self.Buttons.HamburgerMenu.isOpen = false
-				for _, fusionFile in pairs(self.FusionFiles) do
-					local id = getRandomFusionId(fusionFile.fusionId)
-					fusionFile:setId(id)
+				-- Try up to 42 times to find a valid fusion file image
+				for _ = 1, 42, 1 do
+					for _, fusionFile in pairs(self.FusionFiles) do
+						local id = getRandomFusionId(fusionFile.fusionId)
+						fusionFile:setId(id)
+					end
+					if self.tryFetchFusions() then
+						break
+					end
 				end
 				self.refreshButtons()
 				Program.redraw(true)
@@ -925,7 +575,7 @@ local function InfiniteFusion()
 		defaultSort = function(a, b) return a.name < b.name end,
 		realignGrid = function(this)
 			local x, y = 3, 3
-			local colSpacer = 10
+			local colSpacer = 5
 			local rowSpacer = 1
 			local maxWidth = Constants.SCREEN.WIDTH - 3
 			local maxHeight = self.Buttons.CurrentPage.box[2] - 0
@@ -967,43 +617,45 @@ local function InfiniteFusion()
 	function self.buildPagedButtons()
 		self.Pager.Buttons = {}
 		for id, name in pairs(fusionIdToName) do
-			-- local width = Utils.calcWordPixelLength(name or ExtConstants.unknownName)
-			local currentlySelected = (id == self.FusionFiles[self.lookupIndex].fusionId)
-			local button = {
-				type = Constants.ButtonTypes.NO_BORDER,
-				id = id, -- fusion id
-				name = name, -- acceptable fusion name
-				dimensions = { width = nameMaxWidth, height = 12, },
-				isSelected = currentlySelected,
-				isVisible = function(this) return self.Pager.currentPage == this.pageVisible and self.currentScreen == ExtConstants.Screens.PokemonLookup end,
-				-- updateSelf = function(this)
-				-- end,
-				includeInGrid = function(this)
-					-- If no search text entered, show all results
-					if LogSearchScreen.searchText == "" then
-						return true
-					else
-						return Utils.containsText(this.name, LogSearchScreen.searchText, true)
-					end
-				end,
-				draw = function(this, shadowcolor)
-					if not this.box or not this.box[1] then return end
-					local x, y = this.box[1], this.box[2]
-					Drawing.drawText(x, y, this.name, ExtConstants.Colors.text)
-					if this.isSelected then
-						local w = Utils.calcWordPixelLength(this.name)
-						local h = this.box[4] - 1
-						Drawing.drawSelectionIndicators(x, y + 1, w + 3, h - 2, ExtConstants.Colors.highlight, 1, 4, 1)
-					end
-				end,
-				onClick = function(this)
-					self.FusionFiles[self.lookupIndex]:setId(this.id)
-					self.refreshButtons()
-					changeLargeScreen(ExtConstants.Screens.MainFusion)
-					Program.changeScreenView(TrackerScreen)
-				end,
-			}
-			table.insert(self.Pager.Buttons, button)
+			if fusionIdToName[id] ~= EMPTY_FUSION then
+				-- local width = Utils.calcWordPixelLength(name or ExtConstants.unknownName)
+				local currentlySelected = (id == self.FusionFiles[self.lookupIndex].fusionId)
+				local button = {
+					type = Constants.ButtonTypes.NO_BORDER,
+					id = id, -- fusion id
+					name = name, -- acceptable fusion name
+					dimensions = { width = nameMaxWidth, height = 12, },
+					isSelected = currentlySelected,
+					isVisible = function(this) return self.Pager.currentPage == this.pageVisible and self.currentScreen == ExtConstants.Screens.PokemonLookup end,
+					-- updateSelf = function(this)
+					-- end,
+					includeInGrid = function(this)
+						-- If no search text entered, show all results
+						if LogSearchScreen.searchText == "" then
+							return true
+						else
+							return Utils.containsText(this.name, LogSearchScreen.searchText, true)
+						end
+					end,
+					draw = function(this, shadowcolor)
+						if not this.box or not this.box[1] then return end
+						local x, y = this.box[1], this.box[2]
+						Drawing.drawText(x, y, this.name, ExtConstants.Colors.text)
+						if this.isSelected then
+							local w = Utils.calcWordPixelLength(this.name)
+							local h = this.box[4] - 1
+							Drawing.drawSelectionIndicators(x, y + 1, w + 3, h - 2, ExtConstants.Colors.highlight, 1, 4, 1)
+						end
+					end,
+					onClick = function(this)
+						self.FusionFiles[self.lookupIndex]:setId(this.id)
+						self.refreshButtons()
+						changeLargeScreen(ExtConstants.Screens.MainFusion)
+						Program.changeScreenView(TrackerScreen)
+					end,
+				}
+				table.insert(self.Pager.Buttons, button)
+			end
 		end
 		self.Pager:realignGrid()
 	end
@@ -1047,7 +699,7 @@ local function InfiniteFusion()
 		},
 	}
 
-	local function dualOSExecute(command1, command2)
+	function self.dualOSExecute(command1, command2)
 		local fetchMsg = "Fetching fusion images..."
 		local outFile = FileManager.prependDir(FileManager.Files.OSEXECUTE_OUTPUT)
 		local commandsWithOutput = string.format('echo %s && %s >"%s" && %s >>"%s"', fetchMsg, command1, outFile, command2, outFile) -- >> appends
@@ -1059,7 +711,7 @@ local function InfiniteFusion()
 		return success, FileManager.readLinesFromFile(outFile)
 	end
 
-	local function tryFetchFusionsOffline(fusionFile1, fusionFile2)
+	function self.tryFetchFusionsOffline(fusionFile1, fusionFile2)
 		local f1, f2 = fusionFile1, fusionFile2
 		f1.filepath = ExtConstants.offlineFolder .. string.format(ExtConstants.Formats.fusionFile, f1.fusionId, f2.fusionId)
 		f2.filepath = ExtConstants.offlineFolder .. string.format(ExtConstants.Formats.fusionFile, f2.fusionId, f1.fusionId) -- Reverse the order to get the other fusion
@@ -1105,17 +757,18 @@ local function InfiniteFusion()
 			end
 		end
 
-		return true
+		local fusionFound = f1.canDisplay or f2.canDisplay or #self.FusionFiles > 2
+		return fusionFound
 	end
 
-	local function tryFetchFusionsOnline(fusionFile1, fusionFile2)
+	function self.tryFetchFusionsOnline(fusionFile1, fusionFile2)
 		local f1, f2 = fusionFile1, fusionFile2
 		-- Get both fusion images and http status codes
 		local url1 = string.format(ExtConstants.Formats.fusionUrl, f1.fusionId, f2.fusionId)
 		local url2 = string.format(ExtConstants.Formats.fusionUrl, f2.fusionId, f1.fusionId) -- Reverse the order to get the other fusion
 		local command1 = string.format(ExtConstants.Formats.curlCommand1, f1.filepath, url1)
 		local command2 = string.format(ExtConstants.Formats.curlCommand2, f2.filepath, url2)
-		local success, output = dualOSExecute(command1, command2)
+		local success, output = self.dualOSExecute(command1, command2)
 
 		output = Utils.split(table.concat(output or {}) or "", ",", true)
 		local statusCode1 = output[1] or "404"
@@ -1128,7 +781,7 @@ local function InfiniteFusion()
 		return success
 	end
 
-	local function buildAlternateFusionButtons()
+	function self.buildAlternateFusionButtons()
 		local altPrefix = "Alternate"
 
 		-- Clear out existing buttons
@@ -1146,13 +799,14 @@ local function InfiniteFusion()
 			return
 		end
 
-		local altButtonsTotalHeight = #self.FusionFiles * (Constants.SCREEN.LINESPACING + 2)
-		local offsetY = math.floor((Constants.SCREEN.HEIGHT - 20 - altButtonsTotalHeight) / 2)
+		-- local altButtonsTotalHeight = #self.FusionFiles * (Constants.SCREEN.LINESPACING + 2)
+		-- local offsetY = math.floor((Constants.SCREEN.HEIGHT - 20 - altButtonsTotalHeight) / 2)
 		local createAltBtn = function(text, fusionFileIndex)
 			local btn = {
 				type = Constants.ButtonTypes.FULL_BORDER,
 				getText = function() return text end,
-				box = { 2, offsetY, Utils.calcWordPixelLength(text) + 5, Constants.SCREEN.LINESPACING},
+				-- box = { 2, offsetY, Utils.calcWordPixelLength(text) + 5, Constants.SCREEN.LINESPACING},
+				dimensions = { width = Utils.calcWordPixelLength(text) + 5, height = Constants.SCREEN.LINESPACING },
 				textColor = "Default text",
 				isVisible = function()
 					local canShowFusion = self.FusionFiles[fusionFileIndex] and self.FusionFiles[fusionFileIndex].canDisplay
@@ -1164,20 +818,24 @@ local function InfiniteFusion()
 					Program.redraw(true)
 				end,
 			}
-			offsetY = offsetY + btn.box[4] + 2
+			-- offsetY = offsetY + btn.box[4] + 2
 			return btn
 		end
 
+		local buttonsToAlign = {}
 		for i, fusionFile in ipairs(self.FusionFiles) do
 			local index = i > 2 and (i - 2) or i
 			local altName = (i > 2 and "A" or "F") .. index
 			if fusionFile.canDisplay then
-				self.Buttons[altPrefix .. altName] = createAltBtn(altName, i)
+				local key = altPrefix .. altName
+				self.Buttons[key] = createAltBtn(altName, i)
+				table.insert(buttonsToAlign, self.Buttons[key])
 			end
 		end
+		Utils.gridAlign(buttonsToAlign, 2, 12, 0, 0, true, Constants.SCREEN.WIDTH, Constants.SCREEN.HEIGHT - 35)
 	end
 
-	local function tryFetchFusions()
+	function self.tryFetchFusions()
 		local f1, f2 = self.FusionFiles[1], self.FusionFiles[2]
 		-- Don't fetch fusions if both have already been fetched
 		if f1.isFetched and f2.isFetched then
@@ -1202,18 +860,22 @@ local function InfiniteFusion()
 
 		local success = false
 		if ExtConstants.offlineAvailable then
-			success = tryFetchFusionsOffline(f1, f2)
+			success = self.tryFetchFusionsOffline(f1, f2)
 		else
-			success = tryFetchFusionsOnline(f1, f2)
+			success = self.tryFetchFusionsOnline(f1, f2)
 		end
 
 		if success then
-			buildAlternateFusionButtons()
+			self.buildAlternateFusionButtons()
 		end
 
 		-- If the first result is missing but the second is available, show that first
-		if not f1.canDisplay and f2.canDisplay then
+		if f1.canDisplay then
+			self.viewedFusionIndex = 1
+		elseif f2.canDisplay then
 			self.viewedFusionIndex = 2
+		elseif #self.FusionFiles > 2 then
+			self.viewedFusionIndex = 3
 		end
 
 		return success
@@ -1224,7 +886,7 @@ local function InfiniteFusion()
 		if not self.isDisplayed then return end
 
 		if self.currentScreen == ExtConstants.Screens.MainFusion then
-			tryFetchFusions()
+			self.tryFetchFusions()
 		elseif self.currentScreen == ExtConstants.Screens.PokemonLookup then
 			if LogSearchScreen.searchText ~= prevSearchText then
 				prevSearchText = LogSearchScreen.searchText
