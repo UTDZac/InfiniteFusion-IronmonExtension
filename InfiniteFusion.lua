@@ -5,7 +5,7 @@ local function InfiniteFusion()
 	self.name = "Pokémon Infinite Fusion"
 	self.author = "UTDZac"
 	self.description = "Fuse two Pokémon together from the Pokémon Infinite Fusion game."
-	self.version = "2.0"
+	self.version = "2.1"
 	self.url = "https://github.com/UTDZac/InfiniteFusion-IronmonExtension"
 
 	local ExtConstants = {
@@ -40,6 +40,7 @@ local function InfiniteFusion()
 	ExtConstants.offlineAvailable = FileManager.folderExists(ExtConstants.offlineFolder)
 
 	local EMPTY_FUSION = ""
+	local MAX_RANDOM_TRIES = 80
 	-- List of all available fusions, in order: key:fusionId, value:fusionName
 	-- https://infinitefusion.fandom.com/wiki/Pok%C3%A9dex
 	local fusionIdToName = {
@@ -84,17 +85,21 @@ local function InfiniteFusion()
 		"Axew", "Fraxure", "Golett", "Fletchling", "Fletchinder", "Larvesta", "Stunfisk", "Sableye", "Venipede", "Whirlipede",
 		"Scolipede", "Tyrunt", "Tyrantrum", "Snorunt", "Glalie", "Froslass", "OricorioBaile", "OricorioPom", "OricorioPa'u",
 		"OricorioSensu", "Trubbish", "Garbodor", "Carvanha", "Sharpedo", "Phantump", "Trevenant", "Noibat", "Noivern", "Swablu",
-		"Altaria", "Goomy", "Sliggoo", "Goodra",
-		EMPTY_FUSION,
-		EMPTY_FUSION,
-		EMPTY_FUSION,
-		EMPTY_FUSION,
-		"Stufful",
-		"Bewear",
-		"Dhelmise",
-		"Mareanie",
-		"Toxapex",
+		"Altaria", "Goomy", "Sliggoo", "Goodra", "Regirock", "Regice", "Registeel", "Necrozma", "Stufful", "Bewear", "Dhelmise",
+		"Mareanie", "Toxapex", "Hawlucha", "Cacnea", "Cacturne", "Sandygast", "Palossand", "Amaura", "Aurorus",
+		-- The below have not been added yet.
+		-- "Rockruff", "Lycanroc D", "Lycanroc N", "Meloetta A", "Meloetta P",
 	}
+	local fusionExtrasInfo = {
+		["Necrozma U."] = "450_1"
+	}
+	-- Some fusions uses a different ID format than just a pure number. Those exceptions are inserted in here
+	local fusionExtrasStartId = #fusionIdToName + 1
+	for name, id in pairs(fusionExtrasInfo) do
+		table.insert(fusionIdToName, name)
+		fusionExtrasInfo[#fusionIdToName] = id
+	end
+
 	local nameMaxWidth = 0
 	for _, name in pairs(fusionIdToName) do
 		local nameWidth = Utils.calcWordPixelLength(name) or 0
@@ -105,7 +110,7 @@ local function InfiniteFusion()
 	-- Returns a random valid fusion id, different from previousId (optional)
 	local function getRandomFusionId(previousId)
 		-- Try up to 42 times to get a different random id
-		for i=1, 42, 1 do
+		for i=1, MAX_RANDOM_TRIES, 1 do
 			local randomId = math.random(#fusionIdToName)
 			if randomId ~= previousId and fusionIdToName[randomId] ~= EMPTY_FUSION then
 				return randomId
@@ -438,8 +443,7 @@ local function InfiniteFusion()
 			onClick = function(this)
 				self.Buttons.HamburgerMenu.isOpen = false
 				local fusionFile = self.FusionFiles[this.fusionFileIndex]
-				-- Try up to 42 times to find a valid fusion file image
-				for _ = 1, 42, 1 do
+				for _ = 1, MAX_RANDOM_TRIES, 1 do
 					local id = getRandomFusionId(fusionFile.fusionId)
 					fusionFile:setId(id)
 					if self.tryFetchFusions() then
@@ -461,8 +465,7 @@ local function InfiniteFusion()
 			onClick = function(this)
 				self.Buttons.HamburgerMenu.isOpen = false
 				local fusionFile = self.FusionFiles[this.fusionFileIndex]
-				-- Try up to 42 times to find a valid fusion file image
-				for _ = 1, 42, 1 do
+				for _ = 1, MAX_RANDOM_TRIES, 1 do
 					local id = getRandomFusionId(fusionFile.fusionId)
 					fusionFile:setId(id)
 					if self.tryFetchFusions() then
@@ -489,8 +492,7 @@ local function InfiniteFusion()
 			end,
 			onClick = function(this)
 				self.Buttons.HamburgerMenu.isOpen = false
-				-- Try up to 42 times to find a valid fusion file image
-				for _ = 1, 42, 1 do
+				for _ = 1, MAX_RANDOM_TRIES, 1 do
 					for _, fusionFile in pairs(self.FusionFiles) do
 						local id = getRandomFusionId(fusionFile.fusionId)
 						fusionFile:setId(id)
@@ -713,12 +715,19 @@ local function InfiniteFusion()
 
 	function self.tryFetchFusionsOffline(fusionFile1, fusionFile2)
 		local f1, f2 = fusionFile1, fusionFile2
-		f1.filepath = ExtConstants.offlineFolder .. string.format(ExtConstants.Formats.fusionFile, f1.fusionId, f2.fusionId)
-		f2.filepath = ExtConstants.offlineFolder .. string.format(ExtConstants.Formats.fusionFile, f2.fusionId, f1.fusionId) -- Reverse the order to get the other fusion
+		local f1_id, f2_id = f1.fusionId, f2.fusionId
+		if f1_id >= fusionExtrasStartId and fusionExtrasInfo[f1_id] then
+			f1_id = fusionExtrasInfo[f1_id]
+		end
+		if f2_id >= fusionExtrasStartId and fusionExtrasInfo[f2_id] then
+			f2_id = fusionExtrasInfo[f2_id]
+		end
+		f1.filepath = ExtConstants.offlineFolder .. string.format(ExtConstants.Formats.fusionFile, f1_id, f2_id)
+		f2.filepath = ExtConstants.offlineFolder .. string.format(ExtConstants.Formats.fusionFile, f2_id, f1_id) -- Reverse the order to get the other fusion
 		f1.isFetched = true
 		f2.isFetched = true
 		f1.canDisplay = FileManager.fileExists(f1.filepath)
-		f2.canDisplay = f1.fusionId ~= f2.fusionId and FileManager.fileExists(f2.filepath)
+		f2.canDisplay = f1_id ~= f2_id and FileManager.fileExists(f2.filepath)
 
 		local createFusionFile = function(referenceFile, letter, path)
 			return {
@@ -763,9 +772,16 @@ local function InfiniteFusion()
 
 	function self.tryFetchFusionsOnline(fusionFile1, fusionFile2)
 		local f1, f2 = fusionFile1, fusionFile2
+		local f1_id, f2_id = f1.fusionId, f2.fusionId
+		if f1_id >= fusionExtrasStartId and fusionExtrasInfo[f1_id] then
+			f1_id = fusionExtrasInfo[f1_id]
+		end
+		if f2_id >= fusionExtrasStartId and fusionExtrasInfo[f2_id] then
+			f2_id = fusionExtrasInfo[f2_id]
+		end
 		-- Get both fusion images and http status codes
-		local url1 = string.format(ExtConstants.Formats.fusionUrl, f1.fusionId, f2.fusionId)
-		local url2 = string.format(ExtConstants.Formats.fusionUrl, f2.fusionId, f1.fusionId) -- Reverse the order to get the other fusion
+		local url1 = string.format(ExtConstants.Formats.fusionUrl, f1_id, f2_id)
+		local url2 = string.format(ExtConstants.Formats.fusionUrl, f2_id, f1_id) -- Reverse the order to get the other fusion
 		local command1 = string.format(ExtConstants.Formats.curlCommand1, f1.filepath, url1)
 		local command2 = string.format(ExtConstants.Formats.curlCommand2, f2.filepath, url2)
 		local success, output = self.dualOSExecute(command1, command2)
@@ -799,10 +815,8 @@ local function InfiniteFusion()
 			return
 		end
 
-		-- local altButtonsTotalHeight = #self.FusionFiles * (Constants.SCREEN.LINESPACING + 2)
-		-- local offsetY = math.floor((Constants.SCREEN.HEIGHT - 20 - altButtonsTotalHeight) / 2)
 		local createAltBtn = function(text, fusionFileIndex)
-			local btn = {
+			return {
 				type = Constants.ButtonTypes.FULL_BORDER,
 				getText = function() return text end,
 				-- box = { 2, offsetY, Utils.calcWordPixelLength(text) + 5, Constants.SCREEN.LINESPACING},
@@ -818,8 +832,6 @@ local function InfiniteFusion()
 					Program.redraw(true)
 				end,
 			}
-			-- offsetY = offsetY + btn.box[4] + 2
-			return btn
 		end
 
 		local buttonsToAlign = {}
@@ -852,9 +864,16 @@ local function InfiniteFusion()
 		clearFetchedFusions()
 		f1.fusionId = id1
 		f2.fusionId = id2
-
 		local pokemonName1 = fusionIdToName[id1] or ExtConstants.unknownName
 		local pokemonName2 = fusionIdToName[id2] or ExtConstants.unknownName
+
+		if id1 >= fusionExtrasStartId and fusionExtrasInfo[id1] then
+			id1 = fusionExtrasInfo[id1]
+		end
+		if id2 >= fusionExtrasStartId and fusionExtrasInfo[id2] then
+			id2 = fusionExtrasInfo[id2]
+		end
+
 		f1.fusionName = string.format(ExtConstants.Formats.fusionName, pokemonName1, pokemonName2, id1, id2)
 		f2.fusionName = string.format(ExtConstants.Formats.fusionName, pokemonName2, pokemonName1, id2, id1)
 
