@@ -90,14 +90,19 @@ local function InfiniteFusion()
 		-- The below have not been added yet.
 		-- "Rockruff", "Lycanroc D", "Lycanroc N", "Meloetta A", "Meloetta P",
 	}
-	local fusionExtrasInfo = {
-		["Necrozma U."] = "450_1"
+
+	-- Some fusions use a different ID format than just a pure number. Those exceptions are inserted in here
+	local fusionsRequiringOverride = {
+		["Necrozma U."] = "450_1",
 	}
-	-- Some fusions uses a different ID format than just a pure number. Those exceptions are inserted in here
-	local fusionExtrasStartId = #fusionIdToName + 1
-	for name, id in pairs(fusionExtrasInfo) do
+	local fusionIdOverrides = {}
+	local fusionOverrideStartId = #fusionIdToName + 1
+	for name, id in pairs(fusionsRequiringOverride) do
 		table.insert(fusionIdToName, name)
-		fusionExtrasInfo[#fusionIdToName] = id
+		fusionIdOverrides[#fusionIdToName] = id
+	end
+	local function getFusionIdOverride(id)
+		return id >= fusionOverrideStartId and fusionIdOverrides[id] or id
 	end
 
 	local nameMaxWidth = 0
@@ -715,13 +720,8 @@ local function InfiniteFusion()
 
 	function self.tryFetchFusionsOffline(fusionFile1, fusionFile2)
 		local f1, f2 = fusionFile1, fusionFile2
-		local f1_id, f2_id = f1.fusionId, f2.fusionId
-		if f1_id >= fusionExtrasStartId and fusionExtrasInfo[f1_id] then
-			f1_id = fusionExtrasInfo[f1_id]
-		end
-		if f2_id >= fusionExtrasStartId and fusionExtrasInfo[f2_id] then
-			f2_id = fusionExtrasInfo[f2_id]
-		end
+		local f1_id = getFusionIdOverride(f1.fusionId)
+		local f2_id = getFusionIdOverride(f2.fusionId)
 		f1.filepath = ExtConstants.offlineFolder .. string.format(ExtConstants.Formats.fusionFile, f1_id, f2_id)
 		f2.filepath = ExtConstants.offlineFolder .. string.format(ExtConstants.Formats.fusionFile, f2_id, f1_id) -- Reverse the order to get the other fusion
 		f1.isFetched = true
@@ -772,13 +772,8 @@ local function InfiniteFusion()
 
 	function self.tryFetchFusionsOnline(fusionFile1, fusionFile2)
 		local f1, f2 = fusionFile1, fusionFile2
-		local f1_id, f2_id = f1.fusionId, f2.fusionId
-		if f1_id >= fusionExtrasStartId and fusionExtrasInfo[f1_id] then
-			f1_id = fusionExtrasInfo[f1_id]
-		end
-		if f2_id >= fusionExtrasStartId and fusionExtrasInfo[f2_id] then
-			f2_id = fusionExtrasInfo[f2_id]
-		end
+		local f1_id = getFusionIdOverride(f1.fusionId)
+		local f2_id = getFusionIdOverride(f2.fusionId)
 		-- Get both fusion images and http status codes
 		local url1 = string.format(ExtConstants.Formats.fusionUrl, f1_id, f2_id)
 		local url2 = string.format(ExtConstants.Formats.fusionUrl, f2_id, f1_id) -- Reverse the order to get the other fusion
@@ -867,12 +862,8 @@ local function InfiniteFusion()
 		local pokemonName1 = fusionIdToName[id1] or ExtConstants.unknownName
 		local pokemonName2 = fusionIdToName[id2] or ExtConstants.unknownName
 
-		if id1 >= fusionExtrasStartId and fusionExtrasInfo[id1] then
-			id1 = fusionExtrasInfo[id1]
-		end
-		if id2 >= fusionExtrasStartId and fusionExtrasInfo[id2] then
-			id2 = fusionExtrasInfo[id2]
-		end
+		id1 = getFusionIdOverride(id1)
+		id2 = getFusionIdOverride(id2)
 
 		f1.fusionName = string.format(ExtConstants.Formats.fusionName, pokemonName1, pokemonName2, id1, id2)
 		f2.fusionName = string.format(ExtConstants.Formats.fusionName, pokemonName2, pokemonName1, id2, id1)
