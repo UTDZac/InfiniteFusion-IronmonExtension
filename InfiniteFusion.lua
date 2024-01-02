@@ -5,7 +5,7 @@ local function InfiniteFusion()
 	self.name = "Pokémon Infinite Fusion"
 	self.author = "UTDZac"
 	self.description = "Fuse two Pokémon together from the Pokémon Infinite Fusion game."
-	self.version = "2.1"
+	self.version = "2.2"
 	self.url = "https://github.com/UTDZac/InfiniteFusion-IronmonExtension"
 
 	local ExtConstants = {
@@ -86,9 +86,8 @@ local function InfiniteFusion()
 		"Scolipede", "Tyrunt", "Tyrantrum", "Snorunt", "Glalie", "Froslass", "OricorioBaile", "OricorioPom", "OricorioPa'u",
 		"OricorioSensu", "Trubbish", "Garbodor", "Carvanha", "Sharpedo", "Phantump", "Trevenant", "Noibat", "Noivern", "Swablu",
 		"Altaria", "Goomy", "Sliggoo", "Goodra", "Regirock", "Regice", "Registeel", "Necrozma", "Stufful", "Bewear", "Dhelmise",
-		"Mareanie", "Toxapex", "Hawlucha", "Cacnea", "Cacturne", "Sandygast", "Palossand", "Amaura", "Aurorus",
-		-- The below have not been added yet.
-		-- "Rockruff", "Lycanroc D", "Lycanroc N", "Meloetta A", "Meloetta P",
+		"Mareanie", "Toxapex", "Hawlucha", "Cacnea", "Cacturne", "Sandygast", "Palossand", "Amaura", "Aurorus", "Rockruff",
+		"Lycanroc D", "Lycanroc N", "Meloetta A", "Meloetta P", "Cresselia", "Bruxish",
 	}
 
 	-- Some fusions use a different ID format than just a pure number. Those exceptions are inserted in here
