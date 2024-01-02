@@ -13,7 +13,7 @@ List of currently available fusions: [infinitefusion.fandom.com](https://infinit
 ### Step 1: Install the Fusion Image Resource Files
 If you've already downloaded and installed these files, you can skip this entire section.
 
-1) Download from the [Pokémon Infinite Fusion discord](https://discord.gg/infinitefusion) or directly from [Google Drive (October 2023 update)](https://drive.google.com/file/d/1rEdf5V1zpLWi7kTbpdi7atKVCA-acA-x/view)
+1) Download from the [Pokémon Infinite Fusion discord](https://discord.gg/infinitefusion) or directly from [Google Drive (November 2023 update)](https://drive.google.com/file/d/1i0_o8xLYO52c-O4OknAcyChxRH-MkWJY/view?usp=drive_link)
 2) If you downloaded a `.zip` file, first extract the contents of the `.zip` file into a new folder
 3) From inside the extracted folder, look for the **"CustomBattlers"** folder. This is the only folder you'll need, ignore the others.
    - ![image](https://github.com/UTDZac/InfiniteFusion-IronmonExtension/assets/4258818/76c68a85-a688-4286-83aa-5ea9ae4365a8)
